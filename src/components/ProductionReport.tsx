@@ -225,6 +225,13 @@ export function ProductionReport() {
                                             checked={selectedDevices.includes(
                                                 device
                                             )}
+                                            // onChange={(e) => {
+                                            //     if (e.target.checked) {
+                                            //         setSelectedDevices([device]);
+                                            //     } else {
+                                            //         setSelectedDevices([]);
+                                            //     }
+                                            // }}
                                             onChange={(e) => {
                                                 if (e.target.checked) {
                                                     setSelectedDevices([
@@ -258,7 +265,7 @@ export function ProductionReport() {
                         className={`print:w-[8.5in] print:h-[11in] print:m-0 print:p-8 ${
                             index < reports.length - 1
                                 ? "page-break-after-always"
-                                : ""
+                                : ""    
                         }`}
                     >
                         <Card className="h-full shadow-none print:shadow-none">
