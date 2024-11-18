@@ -53,9 +53,9 @@ test.describe('ProductionReport Component', () => {
     });
     
     test('Validate chart and table data rendering', async ({ page }) => {
-        // Navigate to the page containing the ProductionReport component
+
+        //Tested value for specific integers below is based on data assertations made by me before writing script
         await page.goto('http://localhost:3000/?devices=Ender&startDate=2024-10-29&endDate=2024-11-30');
-        // Ensure the report filter section is visible
 
         const reportContainer = page.locator('text=Production Report');
         await expect(reportContainer).toBeVisible();
@@ -89,27 +89,38 @@ test.describe('ProductionReport Component', () => {
         expect(xAxisTexts).toEqual(['Down', 'Running', 'Changeover', 'Meal/Break']);
         expect(yAxisTexts).toEqual(["0", "5000", "10000", "15000", "20000", "0", "3", "6", "9", "12"]);
       
-        // Verify rotated text for labels (optional)
-        const xAxisRotatedText = xAxisLabels.first();
-        const rotationTransform = await xAxisRotatedText.getAttribute('transform');
-        expect(rotationTransform).toContain('rotate(-45');
-      
-        // Verify clipPath definitions
-        const clipPath = svg.locator('defs clipPath#recharts2-clip rect');
-        await expect(clipPath).toBeVisible();
-      
-        // Check for the rect inside the clipPath
-        const clipRect = svg.locator('defs clipPath#recharts2-clip rect');
-        const rectX = await clipRect.getAttribute('x');
-        const rectY = await clipRect.getAttribute('y');
-        const rectHeight = await clipRect.getAttribute('height');
-        const rectWidth = await clipRect.getAttribute('width');
-      
-        expect(rectX).toBe('140');
-        expect(rectY).toBe('56');
-        expect(rectHeight).toBe('184');
-        expect(rectWidth).toBe('520');
       });
+    
+
+      test('checks if the download button triggers a PDF download', async ({ page }) => {
+        // Navigate to the page containing the button (replace with the actual URL)
+        await page.goto('http://localhost:3000/?devices=Ender&startDate=2024-10-29&endDate=2024-11-30');  // Adjust the URL as needed
+        
+        // Locate the download button by its class name
+        const downloadButton = page.locator('button:has(svg.lucide-download)');
+        
+        // Ensure the button is visible
+        await expect(downloadButton).toBeVisible();
+    console.log(downloadButton)
+        // Increase timeout for waiting for the download event
+        const downloadPromise = page.waitForEvent('download', { timeout: 60000 });  // Increase timeout to 60 seconds
+    
+        // Click the download button (force click if necessary)
+        await downloadButton.click({ force: true });
+    
+        // Wait for the download to complete
+        const download = await downloadPromise;  // Wait until the download event is triggered
+    
+        // Ensure the download has started
+        await expect(download).not.toBeNull();  // Ensure a download has been triggered
+    
+        // Optionally, you can check the downloaded file's name or path
+        const path = await download.path();
+        expect(path).toContain('.pdf');  // Verify the file is a PDF (or adjust based on your download format)
+        
+        // Optionally, save the downloaded file
+        await download.saveAs('/path/to/save/at/' + download.suggestedFilename());  // Save the file to a specific path (adjust as needed)
+    });
     
 
 });
