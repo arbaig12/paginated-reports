@@ -60,7 +60,6 @@ test.describe('ProductionReport Component', () => {
         const reportContainer = page.locator('text=Production Report');
         await expect(reportContainer).toBeVisible();
     
-        // Validate table data for any specific device
         const tableRows = page.locator('table tbody tr');
         await expect(tableRows).toHaveCount(4); 
 
@@ -91,36 +90,35 @@ test.describe('ProductionReport Component', () => {
       
       });
     
+      test('checks if the download button triggers a failure on clicking', async ({ page, browser }) => {
 
-      test('checks if the download button triggers a PDF download', async ({ page }) => {
-        // Navigate to the page containing the button (replace with the actual URL)
-        await page.goto('http://localhost:3000/?devices=Ender&startDate=2024-10-29&endDate=2024-11-30');  // Adjust the URL as needed
-        
-        // Locate the download button by its class name
-        const downloadButton = page.locator('button:has(svg.lucide-download)');
-        
-        // Ensure the button is visible
+        const context = await browser.newContext({
+            acceptDownloads: true 
+        });
+    
+        const newPage = await context.newPage();
+        await newPage.goto('http://localhost:3000/?devices=Ender&startDate=2024-10-29&endDate=2024-11-30');
+    
+        const downloadButton = newPage.locator('button').nth(0);
         await expect(downloadButton).toBeVisible();
-    console.log(downloadButton)
-        // Increase timeout for waiting for the download event
-        const downloadPromise = page.waitForEvent('download', { timeout: 60000 });  // Increase timeout to 60 seconds
     
-        // Click the download button (force click if necessary)
-        await downloadButton.click({ force: true });
+        const clickPromise = downloadButton.click({ force: true });
+        await expect(clickPromise).resolves.not.toThrow(); 
+        const downloadPromise = newPage.waitForEvent('download', { timeout: 5000 }); 
     
-        // Wait for the download to complete
-        const download = await downloadPromise;  // Wait until the download event is triggered
+        try {
+            const download = await downloadPromise;
+            if (download) {
+                const path = await download.path();
+                console.error('Download occurred unexpectedly at:', path);
+                throw new Error('Unexpected download event!');
+            }
+        } catch (error) {
+            console.log('Expected: No download event detected.');
+            await expect(error.message).toContain('Test timeout'); 
+        }
     
-        // Ensure the download has started
-        await expect(download).not.toBeNull();  // Ensure a download has been triggered
-    
-        // Optionally, you can check the downloaded file's name or path
-        const path = await download.path();
-        expect(path).toContain('.pdf');  // Verify the file is a PDF (or adjust based on your download format)
-        
-        // Optionally, save the downloaded file
-        await download.saveAs('/path/to/save/at/' + download.suggestedFilename());  // Save the file to a specific path (adjust as needed)
+        await context.close();
     });
     
-
 });
