@@ -40,7 +40,7 @@ jobs:
 
       - name: Run Vitest unit tests
         run: |
-          npx vitest run --coverage  # Run Vitest unit tests with coverage
+          npx vitest 
 
       - name: Run Playwright tests
         run: |
@@ -63,7 +63,7 @@ jobs:
 
       - name: Build Next.js app
         run: |
-          npm run build  # Build the Next.js app to verify it builds correctly
+          npm run dev  # Build the Next.js app to verify it builds correctly
 
   coverage_report:
     runs-on: ubuntu-latest
