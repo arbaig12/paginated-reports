@@ -34,13 +34,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Run Vitest tests
-        run: |
-          npx vitest run  # Run vitest tests
 
       - name: Run Playwright tests
         run: |
           npx playwright test  # Run Playwright tests
+        
+      - name: Run Vitest tests
+        run: |
+          npx vitest run  # Run vitest tests
+
+
 
   build_check:
     needs: run_tests
