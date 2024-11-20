@@ -37,6 +37,12 @@ jobs:
         run: |
           npm install
 
+
+       # Run Vitest tests
+      - name: Run Vitest tests
+        run: |
+         npx vitest run
+
       # Start Next.js server in the foreground and wait for it to be ready
       - name: Start Next.js server and run Playwright tests
         run: |
