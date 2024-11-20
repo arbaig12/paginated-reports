@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 
+
 test.describe('ProductionReport Component', () => {
     test('should load the report page with filters', async ({ page }) => {
 
@@ -98,11 +99,11 @@ test.describe('ProductionReport Component', () => {
     
         const newPage = await context.newPage();
         await newPage.goto('http://localhost:3000/?devices=Ender&startDate=2024-10-29&endDate=2024-11-30');
-    
+        //there is 2 buttons, the second one is the download print button which was verified 
         const downloadButton = newPage.locator('button').nth(1);   
         await expect(downloadButton).toBeVisible();
     
-        const clickPromise = downloadButton.click({ force: true });
+        const clickPromise = downloadButton.click({ force: true }); //click the button ant test
         await expect(clickPromise).resolves.not.toThrow(); 
         const downloadPromise = newPage.waitForEvent('download', { timeout: 5000 }); 
     
