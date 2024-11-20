@@ -37,16 +37,26 @@ jobs:
         run: |
           npm install
 
-
-       # Run Vitest tests
+      # Run Vitest tests
       - name: Run Vitest tests
         run: |
-         npx vitest run
+          npx vitest run
 
-      # Start Next.js server in the foreground and wait for it to be ready
-      - name: Start Next.js server and run Playwright tests
+      # Install Playwright and cache its browsers
+      - name: Install Playwright and cache browsers
         run: |
           npx playwright install
+
+      # Start Next.js server in the background
+      - name: Start Next.js server
+        run: |
+          npm run dev & # Runs the Next.js server in the background
+          # Wait for the server to be ready (check if port 3000 is available)
+          npx wait-on http://localhost:3000
+
+      # Run Playwright tests
+      - name: Run Playwright tests
+        run: |
           npx playwright test
 
       # Build the application (optional)
