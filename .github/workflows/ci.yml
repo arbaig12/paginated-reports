@@ -3,10 +3,10 @@ name: CI Workflow
 on:
   push:
     branches:
-      - master  # Changed to 'smaster'
+      - smaster  # Trigger workflow on push to smaster branch
   pull_request:
     branches:
-      - master  # Changed to 'smaster'
+      - smaster  # Trigger workflow on PR to smaster branch
 
 jobs:
   test:
@@ -21,7 +21,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'  # Use the appropriate version as per your setup
+          node-version: '16'  # Adjust according to your Node version
 
       # Cache node_modules
       - name: Cache node_modules
@@ -37,13 +37,29 @@ jobs:
         run: |
           npm install
 
+      # Start Next.js server in the background
+      - name: Start Next.js server
+        run: |
+          nohup npm run dev &  # Start the server in the background
+        env:
+          NODE_ENV: production  # Set to production or development based on your needs
+
+      # Wait for the server to be ready
+      - name: Wait for the server to be ready
+        run: |
+          while ! curl --silent --head --fail http://localhost:3000; do
+            echo "Waiting for server to be ready..."
+            sleep 5
+          done
+        timeout-minutes: 2  # Adjust time if needed
+
       # Run Playwright tests
       - name: Run Playwright tests
         run: |
           npx playwright install
           npx playwright test
 
-      # Run Vitest tests
+      # Run Vitest tests (optional, if you have Vitest tests)
       - name: Run Vitest tests
         run: |
           npx vitest run
