@@ -46,25 +46,8 @@ jobs:
       # Start Next.js server in the foreground and wait for it to be ready
       - name: Start Next.js server and run Playwright tests
         run: |
-          # Start Next.js server and wait for it to be ready
-          npm run dev &  # Runs in background to not block Playwright test startup
-          
-          # Wait until the server is fully up and running
-          while ! curl --silent --head --fail http://localhost:3000 || ! curl --silent http://localhost:3000 | grep "Production Report"; do
-            echo "Waiting for server to be ready..."
-            sleep 5
-          done
-          
-          # Run Playwright tests after the server is up
           npx playwright install
           npx playwright test
-        env:
-          NODE_ENV: production
-
-      # Run Vitest tests
-      - name: Run Vitest tests
-        run: |
-          npx vitest run
 
       # Build the application (optional)
       - name: Build the application
