@@ -37,32 +37,23 @@ jobs:
         run: |
           npm install
 
-      # Start Next.js server
-      - name: Start Next.js server
+      # Start Next.js server in the foreground and wait for it to be ready
+      - name: Start Next.js server and run Playwright tests
         run: |
-            nohup npm run dev > server.log 2>&1 &  # Log output for debugging
-        env:
-            NODE_ENV: production
-
-      # Wait for the server to be ready
-      - name: Wait for the server to be ready
-        run: |
-            while ! curl --silent --head --fail http://localhost:3000 || ! curl --silent http://localhost:3000 | grep "Production Report"; do
-              echo "Waiting for server to be ready..."
-              sleep 5
-            done
-        timeout-minutes: 3
-
-      # Print server logs for troubleshooting (optional)
-      - name: Print server logs for troubleshooting
-        run: |
-          cat server.log
-
-      # Run Playwright tests
-      - name: Run Playwright tests
-        run: |
+          # Start Next.js server and wait for it to be ready
+          npm run dev &  # Runs in background to not block Playwright test startup
+          
+          # Wait until the server is fully up and running
+          while ! curl --silent --head --fail http://localhost:3000 || ! curl --silent http://localhost:3000 | grep "Production Report"; do
+            echo "Waiting for server to be ready..."
+            sleep 5
+          done
+          
+          # Run Playwright tests after the server is up
           npx playwright install
           npx playwright test
+        env:
+          NODE_ENV: production
 
       # Run Vitest tests
       - name: Run Vitest tests
