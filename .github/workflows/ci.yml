@@ -3,10 +3,10 @@ name: CI Workflow
 on:
   push:
     branches:
-      - master  # Changed to 'smaster'
+      - master
   pull_request:
     branches:
-      - master  # Changed to 'smaster'
+      - master
 
 jobs:
   test:
@@ -21,7 +21,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'  # Use the appropriate version as per your setup
+          node-version: '16'
 
       # Cache node_modules
       - name: Cache node_modules
@@ -37,20 +37,26 @@ jobs:
         run: |
           npm install
 
+      # Start Next.js server
       - name: Start Next.js server
         run: |
-            nohup npm run dev &  # Start the server in the background
+            nohup npm run dev > server.log 2>&1 &  # Log output for debugging
         env:
-            NODE_ENV: production  # Set to production or development based on your needs
-  
-        # Wait for the server to be ready
+            NODE_ENV: production
+
+      # Wait for the server to be ready
       - name: Wait for the server to be ready
         run: |
-            while ! curl --silent --head --fail http://localhost:3000; do
+            while ! curl --silent --head --fail http://localhost:3000 || ! curl --silent http://localhost:3000 | grep "Production Report"; do
               echo "Waiting for server to be ready..."
               sleep 5
             done
-        timeout-minutes: 1  # Adjust time if needed
+        timeout-minutes: 3
+
+      # Print server logs for troubleshooting (optional)
+      - name: Print server logs for troubleshooting
+        run: |
+          cat server.log
 
       # Run Playwright tests
       - name: Run Playwright tests
@@ -63,12 +69,12 @@ jobs:
         run: |
           npx vitest run
 
-      # Build the application (optional, if needed)
+      # Build the application (optional)
       - name: Build the application
         run: |
           npm run build
 
-      # Run lint (optional, if needed)
+      # Run lint (optional)
       - name: Run lint
         run: |
           npm run lint
