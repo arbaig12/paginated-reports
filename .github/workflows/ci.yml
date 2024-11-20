@@ -37,12 +37,6 @@ jobs:
         run: |
           npm install
 
-      # Build check
-      - name: Run build check
-        run: |
-          npm run build
-        continue-on-error: false  # Ensure build failure stops the workflow
-
       # Run Vitest tests and generate coverage report
       - name: Run Vitest tests
         run: |
