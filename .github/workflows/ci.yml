@@ -24,9 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci  # Prefer npm ci over npm install for clean installs in CI
-          npm install vitest --save-dev  # Explicitly install vitest
-          npm install typescript --save-dev  # Ensure TypeScript is installed
-          npm install playwright  # Ensure playwright is installed
+  
 
   run_tests:
     needs: install_dependencies
