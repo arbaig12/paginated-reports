@@ -3,68 +3,57 @@ name: CI Workflow
 on:
   push:
     branches:
-      - master
+      - master  # Changed to 'smaster'
   pull_request:
     branches:
-      - master
+      - master  # Changed to 'smaster'
 
 jobs:
-  install_dependencies:
+  test:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout code
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
+      # Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'  # Use the correct Node.js version
+          node-version: '16'  # Use the appropriate version as per your setup
 
+      # Cache node_modules
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # Install dependencies
       - name: Install dependencies
         run: |
-          npm ci  # Prefer npm ci over npm install for clean installs in CI
-  
+          npm install
 
-  run_tests:
-    needs: install_dependencies
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-
+      # Run Playwright tests
       - name: Run Playwright tests
         run: |
-          npx playwright test  # Run Playwright tests
-        
+          npx playwright install
+          npx playwright test
+
+      # Run Vitest tests
       - name: Run Vitest tests
         run: |
-          npx vitest run  # Run vitest tests
+          npx vitest run
 
-
-
-  build_check:
-    needs: run_tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Build Next.js app
+      # Build the application (optional, if needed)
+      - name: Build the application
         run: |
-          npm run build  # Make sure the build runs correctly
+          npm run build
 
-  generate_coverage_report:
-    needs: build_check
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Generate Coverage Report
+      # Run lint (optional, if needed)
+      - name: Run lint
         run: |
-          npx vitest run --coverage  # Run tests with coverage report
+          npm run lint
