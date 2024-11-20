@@ -37,6 +37,21 @@ jobs:
         run: |
           npm install
 
+      - name: Start Next.js server
+        run: |
+            nohup npm run dev &  # Start the server in the background
+        env:
+            NODE_ENV: production  # Set to production or development based on your needs
+  
+        # Wait for the server to be ready
+      - name: Wait for the server to be ready
+        run: |
+            while ! curl --silent --head --fail http://localhost:3000; do
+              echo "Waiting for server to be ready..."
+              sleep 5
+            done
+        timeout-minutes: 1  # Adjust time if needed
+
       # Run Playwright tests
       - name: Run Playwright tests
         run: |
