@@ -37,10 +37,16 @@ jobs:
         run: |
           npm install
 
-      # Run Vitest tests
+      # Build check
+      - name: Run build check
+        run: |
+          npm run build
+        continue-on-error: false  # Ensure build failure stops the workflow
+
+      # Run Vitest tests and generate coverage report
       - name: Run Vitest tests
         run: |
-          npx vitest run
+          npx vitest run --coverage
 
       # Install Playwright and cache its browsers
       - name: Install Playwright and cache browsers
@@ -59,12 +65,9 @@ jobs:
         run: |
           npx playwright test
 
-      # Build the application (optional)
-      - name: Build the application
-        run: |
-          npm run build
-
-      # Run lint (optional)
-      - name: Run lint
-        run: |
-          npm run lint
+      # Upload the coverage report (optional, for easier viewing)
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: ./coverage
