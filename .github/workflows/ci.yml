@@ -40,7 +40,7 @@ jobs:
       # Run Vitest tests and generate coverage report
       - name: Run Vitest tests
         run: |
-          npx vitest run 
+          npx vitest run --coverage
 
       # Install Playwright and cache its browsers
       - name: Install Playwright and cache browsers
